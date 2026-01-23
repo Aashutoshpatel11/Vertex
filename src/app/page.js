@@ -1,24 +1,275 @@
 "use client"
-import { useSession } from "next-auth/react";
-import { signIn, signOut } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  show: { y: 0, opacity: 1 }
+};
 
 export default function Home() {
+  const { data: session } = useSession();
 
-  const { data: session } = useSession()
-  if (session) {
-    return (
-      <>
-        Signed in as {session.user.email} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-        
-      </>
-    )
-  }
+  return (
+    <div className="min-h-screen bg-base-200 flex flex-col font-sans overflow-x-hidden">
+      <Header session={session} />
+      <main className="flex-grow container mx-auto px-4 py-8">
+        {session ? <DashboardView session={session} /> : <LandingView />}
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+
+function DashboardView({ session }) {
+  const modalRef = useRef(null);
   
+  const [chats, setChats] = useState([
+    { id: 1, title: "Q3 Financial Report", file: "report_q3.pdf", date: "2 mins ago", color: "border-l-primary" },
+    { id: 2, title: "React Architecture", file: "arch_v2.pdf", date: "1 hour ago", color: "border-l-secondary" },
+  ]);
+
+  const openModal = () => {
+    if (modalRef.current) {
+      modalRef.current.showModal();
+    }
+  };
+
   return (
     <>
-      Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="space-y-8"
+      >
+        {/* Welcome Section */}
+        <motion.div variants={itemVariants} className="text-center space-y-2">
+          <h1 className="text-4xl font-bold">
+            Welcome back, <span className="text-primary">{session.user?.name || "User"}</span>!
+          </h1>
+          <p className="text-base-content/70">Ready to chat with your documents?</p>
+        </motion.div>
+
+        {/* Action Bar */}
+        <motion.div variants={itemVariants} className="flex justify-center">
+          <button onClick={openModal} className="btn btn-wide btn-lg btn-primary shadow-lg group">
+            <span className="group-hover:animate-bounce">Upload</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 ml-2 group-hover:rotate-12 transition-transform">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+            </svg>
+          </button>
+        </motion.div>
+
+        {/* Chat Grid */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {chats.map((chat) => (
+            <motion.div 
+              key={chat.id}
+              variants={itemVariants}
+              whileHover={{ scale: 1.03 }}
+              className={`card bg-base-100 shadow-xl border-l-8 ${chat.color} cursor-pointer hover:shadow-2xl transition-all`}
+            >
+              <div className="card-body">
+                <div className="flex justify-between items-start">
+                  <h2 className="card-title text-lg truncate">{chat.title}</h2>
+                  <div className="badge badge-ghost text-xs">{chat.file.split('.').pop()}</div>
+                </div>
+                <p className="text-sm text-base-content/60 truncate">File: {chat.file}</p>
+                <div className="card-actions justify-end mt-4">
+                  <span className="text-xs opacity-50 mr-auto self-center">{chat.date}</span>
+                  <button className="btn btn-sm btn-circle btn-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+          
+          {/* Create New Ghost Card */}
+          <motion.div 
+            variants={itemVariants}
+            whileHover={{ scale: 1.02 }}
+            onClick={openModal}
+            className="card border-2 border-dashed border-base-content/20 bg-transparent flex items-center justify-center min-h-[160px] cursor-pointer hover:border-primary hover:bg-base-100/50 transition-colors group"
+          >
+            <div className="text-center opacity-50 group-hover:opacity-100 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 mx-auto mb-2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <span className="font-semibold">Create New Chat</span>
+            </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* --- NEW CHAT MODAL --- */}
+      <NewChatModal modalRef={modalRef} />
     </>
-  )
+  );
+}
+
+function NewChatModal({ modalRef }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      modalRef.current.close();
+    }, 2000);
+  };
+
+  return (
+    <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
+      <div className="modal-box">
+        <h3 className="font-bold text-lg mb-4">New Chat</h3>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* Title Field */}
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text font-medium">Chat Title</span>
+            </label>
+            <input 
+              type="text" 
+              placeholder="e.g., Q4 Marketing Strategy" 
+              className="input input-bordered w-full focus:input-primary" 
+              required
+            />
+          </div>
+
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text font-medium">Description</span>
+            </label>
+            <textarea 
+              type="text" 
+              placeholder="What is this chat about?" 
+              className="textarea h-24 textarea-bordered w-full focus:textarea-primary" 
+              required
+            />
+          </div>
+
+          {/* File Input */}
+          <div className="form-control w-full">
+            <label className="label">
+              <span className="label-text font-medium">Upload PDF</span>
+            </label>
+            <input 
+              type="file" 
+              accept=".pdf"
+              className="file-input file-input-bordered file-input-primary w-full" 
+              required
+            />
+            <label className="label">
+              <span className="label-text-alt text-base-content/50">Max size: 5MB</span>
+            </label>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="modal-action">
+            {/* Close button (method="dialog" closes modal without submitting) */}
+            <button 
+              type="button" 
+              className="btn"
+              onClick={() => modalRef.current.close()}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            
+            {/* Submit Button */}
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="loading loading-spinner"></span>
+                  Processing...
+                </>
+              ) : (
+                "Create Chat"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      {/* Background click to close */}
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+  );
+}
+
+function Header({ session }) {
+  return (
+    <motion.div 
+      initial={{ y: -100 }} 
+      animate={{ y: 0 }} 
+      transition={{ type: "spring", stiffness: 100 }}
+      className="navbar bg-base-100 shadow-xl rounded-b-box mb-8 z-50 sticky top-0"
+    >
+      <div className="flex-1">
+        <a className="btn btn-ghost text-2xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+          ChatPDF<span className="text-base-content">.ai</span>
+        </a>
+      </div>
+      <div className="flex-none gap-4">
+        {session ? (
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+              <div className="w-10 rounded-full">
+                <img alt="User Avatar" src={session.user?.image || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"} />
+              </div>
+            </div>
+            <ul tabIndex={0} className="mt-3 z-1 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+              <li><button onClick={() => signOut()}>Logout</button></li>
+            </ul>
+          </div>
+        ) : (
+          <button onClick={() => signIn()} className="btn btn-primary">Sign In</button>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function LandingView() {
+  return (
+    <div className="hero min-h-[50vh] bg-base-200">
+      <div className="hero-content text-center">
+        <div className="max-w-md">
+          <h1 className="text-5xl font-bold">Chat with PDFs</h1>
+          <p className="py-6">Login to start chatting with your documents.</p>
+          <button onClick={() => signIn()} className="btn btn-primary">Get Started</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer footer-center p-4 bg-base-300 text-base-content">
+      <aside>
+        <p>Copyright © 2026 - All right reserved by ChatPDF Ltd</p>
+      </aside>
+    </footer>
+  );
 }
