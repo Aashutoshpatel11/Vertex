@@ -2,6 +2,9 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import LandingView from "@/components/LandingView";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -17,9 +20,10 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <div className="min-h-screen bg-base-200 flex flex-col font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-linear-to-t from-black via-black to-zinc-900
+    flex flex-col font-sans overflow-x-hidden  ">
       <Header session={session} />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="grow container mx-auto px-4 py-8  ">
         {session ? <DashboardView session={session} /> : <LandingView />}
       </main>
       <Footer />
@@ -48,20 +52,20 @@ function DashboardView({ session }) {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="space-y-8"
+        className="space-y-8 bg-transparent md:px-10"
       >
         {/* Welcome Section */}
         <motion.div variants={itemVariants} className="text-center space-y-2">
-          <h1 className="text-4xl font-bold">
-            Welcome back, <span className="text-primary">{session.user?.name || "User"}</span>!
+          <h1 className="text-2xl text-base-content/70">
+            Welcome back, <span className="text-3xl text-white">{session.user?.name || "User"}</span>
           </h1>
-          <p className="text-base-content/70">Ready to chat with your documents?</p>
+          <p className="text-base-content/70 font-extralight text-sm">Ready to chat with your documents?</p>
         </motion.div>
 
         {/* Action Bar */}
         <motion.div variants={itemVariants} className="flex justify-center">
-          <button onClick={openModal} className="btn btn-wide btn-lg btn-primary shadow-lg group">
-            <span className="group-hover:animate-bounce">Upload</span>
+          <button onClick={openModal} className="btn btn-wide btn-lg btn-soft btn-circle btn-success shadow-lg group">
+            <span className="">Upload</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 ml-2 group-hover:rotate-12 transition-transform">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
             </svg>
@@ -75,12 +79,14 @@ function DashboardView({ session }) {
               key={chat.id}
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
-              className={`card bg-base-100 shadow-xl border-l-8 ${chat.color} cursor-pointer hover:shadow-2xl transition-all`}
+              className={`card border border-white/10 bg-linear-to-r from-zinc-950 via-black to-black
+                p-6 backdrop-blur-sm transition-all hover:bg-white/10 
+                shadow-xl border-l-8 ${chat.color} cursor-pointer hover:shadow-2xl`}
             >
               <div className="card-body">
                 <div className="flex justify-between items-start">
                   <h2 className="card-title text-lg truncate">{chat.title}</h2>
-                  <div className="badge badge-ghost text-xs">{chat.file.split('.').pop()}</div>
+                  <div className="badge badge-soft badge-success text-xs">pdf</div>
                 </div>
                 <p className="text-sm text-base-content/60 truncate">File: {chat.file}</p>
                 <div className="card-actions justify-end mt-4">
@@ -131,33 +137,33 @@ function NewChatModal({ modalRef }) {
   };
 
   return (
-    <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg mb-4">New Chat</h3>
+    <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle backdrop-blur-xl ">
+      <div className="modal-box bg-black border border-white/10 shadow-2xl shadow-black ">
+        <h3 className=" text-lg mb-4">Create Chat</h3>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           
           {/* Title Field */}
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text font-medium">Chat Title</span>
+              <span className="label-text font-light text-sm">Chat Title</span>
             </label>
             <input 
               type="text" 
-              placeholder="e.g., Q4 Marketing Strategy" 
-              className="input input-bordered w-full focus:input-primary" 
+              placeholder="e.g. Marketing Strategy" 
+              className="input input-bordered w-full focus:input-ghost bg-black" 
               required
             />
           </div>
 
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text font-medium">Description</span>
+              <span className="label-text font-light text-sm">Description</span>
             </label>
             <textarea 
               type="text" 
               placeholder="What is this chat about?" 
-              className="textarea h-24 textarea-bordered w-full focus:textarea-primary" 
+              className="bg-black textarea h-36 textarea-bordered w-full focus:textarea-ghost" 
               required
             />
           </div>
@@ -165,16 +171,16 @@ function NewChatModal({ modalRef }) {
           {/* File Input */}
           <div className="form-control w-full">
             <label className="label">
-              <span className="label-text font-medium">Upload PDF</span>
+              <span className="label-text font-light text-sm">Upload PDF</span>
             </label>
             <input 
               type="file" 
               accept=".pdf"
-              className="file-input file-input-bordered file-input-primary w-full" 
+              className="file-input file-input-bordered file-input-ghost w-full" 
               required
             />
             <label className="label">
-              <span className="label-text-alt text-base-content/50">Max size: 5MB</span>
+              <span className="label-text-alt text-base-content/50 font-extralight text-xs">Max size: 5MB</span>
             </label>
           </div>
 
@@ -183,7 +189,7 @@ function NewChatModal({ modalRef }) {
             {/* Close button (method="dialog" closes modal without submitting) */}
             <button 
               type="button" 
-              className="btn"
+              className="btn btn-ghost"
               onClick={() => modalRef.current.close()}
               disabled={isSubmitting}
             >
@@ -193,7 +199,7 @@ function NewChatModal({ modalRef }) {
             {/* Submit Button */}
             <button 
               type="submit" 
-              className="btn btn-primary"
+              className="btn btn-soft btn-success"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -217,59 +223,7 @@ function NewChatModal({ modalRef }) {
   );
 }
 
-function Header({ session }) {
-  return (
-    <motion.div 
-      initial={{ y: -100 }} 
-      animate={{ y: 0 }} 
-      transition={{ type: "spring", stiffness: 100 }}
-      className="navbar bg-base-100 shadow-xl rounded-b-box mb-8 z-50 sticky top-0"
-    >
-      <div className="flex-1">
-        <a className="btn btn-ghost text-2xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
-          ChatPDF<span className="text-base-content">.ai</span>
-        </a>
-      </div>
-      <div className="flex-none gap-4">
-        {session ? (
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <img alt="User Avatar" src={session.user?.image || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"} />
-              </div>
-            </div>
-            <ul tabIndex={0} className="mt-3 z-1 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
-              <li><button onClick={() => signOut()}>Logout</button></li>
-            </ul>
-          </div>
-        ) : (
-          <button onClick={() => signIn()} className="btn btn-primary">Sign In</button>
-        )}
-      </div>
-    </motion.div>
-  );
-}
 
-function LandingView() {
-  return (
-    <div className="hero min-h-[50vh] bg-base-200">
-      <div className="hero-content text-center">
-        <div className="max-w-md">
-          <h1 className="text-5xl font-bold">Chat with PDFs</h1>
-          <p className="py-6">Login to start chatting with your documents.</p>
-          <button onClick={() => signIn()} className="btn btn-primary">Get Started</button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function Footer() {
-  return (
-    <footer className="footer footer-center p-4 bg-base-300 text-base-content">
-      <aside>
-        <p>Copyright © 2026 - All right reserved by ChatPDF Ltd</p>
-      </aside>
-    </footer>
-  );
-}
+
+
