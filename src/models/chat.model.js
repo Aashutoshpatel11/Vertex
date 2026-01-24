@@ -8,6 +8,11 @@ const chatSchema = new Schema(
             required: true,
             unique: true 
         },
+        description: {
+            type: String,
+            required: true,
+            unique: true 
+        },
         storeId: {
             type: String,
             required: true,

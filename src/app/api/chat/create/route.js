@@ -26,6 +26,7 @@ export async function POST(req){
     const reqBody = await req.formData()
     const file = reqBody.get("file")
     const title = reqBody.get("title")
+    const description = reqBody.get("description")
 
     const existingChat = await Chat.findOne({title})
 
@@ -49,6 +50,7 @@ export async function POST(req){
 
     const chat = await Chat.create({
         title,
+        description,
         storeId: storeName
     })
 

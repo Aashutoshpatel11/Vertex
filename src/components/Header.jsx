@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import { signIn, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
@@ -11,11 +12,13 @@ function Header({ session }) {
       className="navbar md:px-10 border-b border-white/5 bg-zinc-900/60 backdrop-blur-md
       shadow-xl rounded-b-box mb-8 z-50 sticky top-0"
     >
+      
       <div className="flex-1">
         <a className="btn btn-ghost text-2xl font-bold  text-white/50 ">
           ChatPDF<span className="text-transparent">.ai</span>
         </a>
       </div>
+
       <div className="flex-none gap-4">
         {session ? (
           <div className="dropdown dropdown-end">

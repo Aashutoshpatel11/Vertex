@@ -1,10 +1,13 @@
 "use client"
 import { useSession, signIn, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LandingView from "@/components/LandingView";
+import axios from "axios";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,11 +37,27 @@ export default function Home() {
 
 function DashboardView({ session }) {
   const modalRef = useRef(null);
+  const [chats, setChats] = useState([]);
+  const router = useRouter()
+
+  const path = usePathname()
+  console.log("URL PATH :: ", path);
+
+  const searchParams = useSearchParams()
+  console.log("SEARCH PARAMS :: ", searchParams.toString());
   
-  const [chats, setChats] = useState([
-    { id: 1, title: "Q3 Financial Report", file: "report_q3.pdf", date: "2 mins ago", color: "border-l-primary" },
-    { id: 2, title: "React Architecture", file: "arch_v2.pdf", date: "1 hour ago", color: "border-l-secondary" },
-  ]);
+
+  const getAllChats = async() => {
+    const res = await axios.get(`http://localhost:3000/api/chat/get`)
+    if( res.status == 200 ){
+      setChats(res.data.data)
+    }
+  }
+
+  useLayoutEffect( () => {
+    getAllChats()
+  }, [] )
+  
 
   const openModal = () => {
     if (modalRef.current) {
@@ -79,6 +98,7 @@ function DashboardView({ session }) {
               key={chat.id}
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
+              onClick={ () => router.push(`chat/${chat._id}`) }
               className={`card border border-white/10 bg-linear-to-r from-zinc-950 via-black to-black
                 p-6 backdrop-blur-sm transition-all hover:bg-white/10 
                 shadow-xl border-l-8 ${chat.color} cursor-pointer hover:shadow-2xl`}
@@ -119,21 +139,41 @@ function DashboardView({ session }) {
       </motion.div>
 
       {/* --- NEW CHAT MODAL --- */}
-      <NewChatModal modalRef={modalRef} />
+      <NewChatModal 
+      modalRef={modalRef}
+      refetchChat={getAllChats}
+      />
     </>
   );
 }
 
-function NewChatModal({ modalRef }) {
+function NewChatModal({ modalRef, refetchChat }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
+
     setIsSubmitting(true);
-    setTimeout(() => {
+
+    const formData = new FormData(e.target)
+    const data = Object.fromEntries(formData.entries())
+
+    try {
+      const res = await axios.post(`http://localhost:3000/api/chat/create`, formData)
+
+      if( res.status == 200 ){  
+        await refetchChat()
+        setIsSubmitting(false);
+        modalRef.current.close();
+      }
+
+    } catch (error) {
       setIsSubmitting(false);
-      modalRef.current.close();
-    }, 2000);
+      alert("Error creating chat. Please try again.")
+      console.log("Create Chat :: Error :: ", error.message)
+    }
+
   };
 
   return (
@@ -143,12 +183,12 @@ function NewChatModal({ modalRef }) {
         
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* Title Field */}
           <div className="form-control w-full">
             <label className="label">
               <span className="label-text font-light text-sm">Chat Title</span>
             </label>
             <input 
+              name="title"
               type="text" 
               placeholder="e.g. Marketing Strategy" 
               className="input input-bordered w-full focus:input-ghost bg-black" 
@@ -161,6 +201,7 @@ function NewChatModal({ modalRef }) {
               <span className="label-text font-light text-sm">Description</span>
             </label>
             <textarea 
+              name="description"
               type="text" 
               placeholder="What is this chat about?" 
               className="bg-black textarea h-36 textarea-bordered w-full focus:textarea-ghost" 
@@ -168,12 +209,12 @@ function NewChatModal({ modalRef }) {
             />
           </div>
 
-          {/* File Input */}
           <div className="form-control w-full">
             <label className="label">
               <span className="label-text font-light text-sm">Upload PDF</span>
             </label>
             <input 
+              name="file"
               type="file" 
               accept=".pdf"
               className="file-input file-input-bordered file-input-ghost w-full" 
@@ -184,9 +225,7 @@ function NewChatModal({ modalRef }) {
             </label>
           </div>
 
-          {/* Action Buttons */}
           <div className="modal-action">
-            {/* Close button (method="dialog" closes modal without submitting) */}
             <button 
               type="button" 
               className="btn btn-ghost"
@@ -196,7 +235,6 @@ function NewChatModal({ modalRef }) {
               Cancel
             </button>
             
-            {/* Submit Button */}
             <button 
               type="submit" 
               className="btn btn-soft btn-success"
@@ -214,11 +252,6 @@ function NewChatModal({ modalRef }) {
           </div>
         </form>
       </div>
-      
-      {/* Background click to close */}
-      <form method="dialog" className="modal-backdrop">
-        <button>close</button>
-      </form>
     </dialog>
   );
 }
