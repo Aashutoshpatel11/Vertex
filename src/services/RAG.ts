@@ -63,7 +63,6 @@ export const RAG = async({vectorStoreName, query, messages}) => {
         const mainChain = RunnableSequence.from([ParallelChain, prompt, model, parser])
     
         const response = await mainChain.invoke({query})
-        // const response = await prompt.invoke({context:"", question:"question is enfsufb"})
         return response
     } catch (error) {
         console.log("ERROR IN PERFORMING RAG :: ", error)

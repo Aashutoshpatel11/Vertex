@@ -95,7 +95,7 @@ function DashboardView({ session }) {
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {chats.map((chat) => (
             <motion.div 
-              key={chat.id}
+              key={chat._id}
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
               onClick={ () => router.push(`chat/${chat._id}`) }

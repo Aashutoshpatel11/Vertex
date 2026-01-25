@@ -45,21 +45,36 @@ export async function POST(req, { params }) {
         }
     
         const previousMessages = await Message.find({chatId}).select("role content -_id").sort({createdAt:1})
-        
-        // // console.log("PREVIOUS MESSAGES :: ", previousMessages)
-        // const prompt = ChatPromptTemplate.fromMessages([
-        //     ["system","You are a helpful assistant that helps users find information."],
-        //     ...previousMessages.map( (m) => [m.role, m.content] ),
-        //     ["human","Use the following context to answer the question: {context}\nQuestion: {question}"]
-        // ])
-
-        // console.log("PROMPT :: :: :: ", await prompt.invoke({question:"Health and care", context:"sdifgsdiufgbsifugiweg"}))
 
         const response = await RAG({
             vectorStoreName: chat.storeId, query:content, messages: previousMessages
         })
-    
-        console.log("RESPONSE :: ", response)
+        if( !response ){
+            return NextResponse.json(
+            {
+                message: "Error Generating Response",
+            },
+            {
+                status: 501
+            }
+        )
+        }
+
+        const AIMsg = await Message.create({
+            chatId,
+            role:"assistant",
+            content: response.trim()
+        })
+        if(!AIMsg){ 
+            return NextResponse.json(
+                {
+                    message:"Error Creating AI Message"
+                },
+                {
+                    status: 404
+                }
+            )
+        }
     
         return NextResponse.json(
             {
