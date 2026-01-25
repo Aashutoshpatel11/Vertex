@@ -11,6 +11,11 @@ const client = new QdrantClient({
     checkCompatibility: false
 });
 
+export const Embeddings = new GoogleGenerativeAIEmbeddings({
+    apiKey:process.env.GOOGLE_API_KEY,
+    model:"gemini-embedding-001"
+})
+
 export const RAGIndexing = async(storeName) => {
     // DATA Loading
     try {
@@ -29,14 +34,7 @@ export const RAGIndexing = async(storeName) => {
         })
         const splitted_data = await splitter.splitDocuments(loaded_raw_data)
     
-    
-        // Embedding Model
-        const Embeddings = new GoogleGenerativeAIEmbeddings({
-            apiKey:process.env.GOOGLE_API_KEY,
-            model:"gemini-embedding-001"
-        })
-    
-    
+
         // STORE DATA in vectore store
         const vectorStore = new QdrantVectorStore( Embeddings, {
             url:process.env.QDRANT_URL,

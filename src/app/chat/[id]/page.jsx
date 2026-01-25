@@ -21,8 +21,8 @@ export default function Chat() {
         {/* --- CONVERSATIONS (IMPROVED) --- */}
         <div className='absolute bottom-26 left-1/2 -translate-x-1/2 h-[76%] w-full md:w-3/4 xl:w-1/2 flex flex-col gap-6 overflow-y-auto px-4 pb-4 no-scrollbar text-white/80'>
             
-            <AIChat key={'sfdhfbsjdkhf'} content={"Hello. I am ready. How can I help you today?"}  />
-            <HumanChat key={"djhsdbvf"} content={"I need help designing a dark mode dashboard."} />
+            {/* <AIChat key={'sfdhfbsjdkhf'} content={"Hello. I am ready. How can I help you today?"}  />
+            <HumanChat key={"djhsdbvf"} content={"I need help designing a dark mode dashboard."} /> */}
 
             {/* Dynamic Mapping (Connect this to your state) */}
             {/* {messages.map((msg, i) => (
