@@ -8,6 +8,9 @@ import LandingView from "@/components/LandingView";
 import axios from "axios";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { UploadIcon } from "lucide-react";
+import { TimeAgo } from "@/utiils/TimeAgo";
+import { ChevronRight } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -23,7 +26,7 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <div className="min-h-screen bg-linear-to-t from-black via-black to-zinc-900
+    <div className="min-h-screen bg-linear-to-t from-black via-black to-red-900/20
     flex flex-col font-sans overflow-x-hidden  ">
       <Header session={session} />
       <main className="grow container mx-auto px-4 py-8  ">
@@ -83,11 +86,9 @@ function DashboardView({ session }) {
 
         {/* Action Bar */}
         <motion.div variants={itemVariants} className="flex justify-center">
-          <button onClick={openModal} className="btn btn-wide btn-lg btn-soft btn-circle btn-success shadow-lg group">
+          <button onClick={openModal} className="btn btn-wide btn-lg btn-soft btn-circle btn-error shadow-lg group">
             <span className="">Upload</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 ml-2 group-hover:rotate-12 transition-transform">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-            </svg>
+            <UploadIcon />
           </button>
         </motion.div>
 
@@ -99,22 +100,20 @@ function DashboardView({ session }) {
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
               onClick={ () => router.push(`chat/${chat._id}`) }
-              className={`card border border-white/10 bg-linear-to-r from-zinc-950 via-black to-black
-                p-6 backdrop-blur-sm transition-all hover:bg-white/10 
-                shadow-xl border-l-8 ${chat.color} cursor-pointer hover:shadow-2xl`}
+              className={`card border border-white/10 bg-linear-to-r from-red-900/10 via-black to-black
+                p-6 backdrop-blur-sm transition-all  
+                shadow-xl border-l-8 hover:border-white/30 cursor-pointer hover:shadow-2xl`}
             >
               <div className="card-body">
                 <div className="flex justify-between items-start">
                   <h2 className="card-title text-lg truncate">{chat.title}</h2>
                   <div className="badge badge-soft badge-success text-xs">pdf</div>
                 </div>
-                <p className="text-sm text-base-content/60 truncate">File: {chat.file}</p>
+                <p className="text-sm text-base-content/60 truncate">File: {chat.storeId}</p>
                 <div className="card-actions justify-end mt-4">
-                  <span className="text-xs opacity-50 mr-auto self-center">{chat.date}</span>
+                  <span className="text-xs opacity-50 mr-auto self-center">{TimeAgo(chat.createdAt)}</span>
                   <button className="btn btn-sm btn-circle btn-ghost">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                    </svg>
+                    <ChevronRight />
                   </button>
                 </div>
               </div>

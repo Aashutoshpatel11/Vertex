@@ -5,7 +5,7 @@ import { NextResponse } from "next/server"
 export async function GET(req, {params}) {
     await connectDB()
     const {chatId} = await params
-    const messages = await Message.find({chatId}).sort({createdAt: 1})
+    const messages = await Message.find({chatId}).sort({createdAt: 1}).select('role content -_id')
     if(!messages){
         return NextResponse.json(
         {

@@ -13,7 +13,6 @@ export async function POST(req, { params }) {
     
     const {chatId} = await params
     const {content} = await req.json()
-    
 
     try {
         const chat = await Chat.findById(chatId)
@@ -88,6 +87,7 @@ export async function POST(req, { params }) {
 
     } catch (error) {
         console.log("ERROR IN BOT ROUTE :: ", error)
+        await Message.findByIdAndDelete(userMsg._id)
         return NextResponse.json(
             {
                 message: "INTERNAL SERVER ERROR",

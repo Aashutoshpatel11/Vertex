@@ -9,13 +9,14 @@ function Header({ session }) {
       initial={{ y: -100 }} 
       animate={{ y: 0 }} 
       transition={{ type: "spring", stiffness: 100 }}
-      className="navbar md:px-10 border-b border-white/5 bg-zinc-900/60 backdrop-blur-md
+      className="navbar md:px-10 border-b border-white/5 
+      bg-transparent backdrop-blur-3xl
       shadow-xl rounded-b-box mb-8 z-50 sticky top-0"
     >
       
       <div className="flex-1">
-        <a className="btn btn-ghost text-2xl font-bold  text-white/50 ">
-          ChatPDF<span className="text-transparent">.ai</span>
+        <a className="btn btn-ghost text-2xl font-bold  text-white/90 ">
+          ChatPDF<span className="text-white/50">.ai</span>
         </a>
       </div>
 
