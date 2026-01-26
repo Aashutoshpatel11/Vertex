@@ -32,7 +32,7 @@ export const RAG = async({vectorStoreName, query, messages}) => {
         // Retreival
         const retreiver = vectorStore.asRetriever({
             k: 4,
-            verbose: true,
+            // verbose: true,
             searchType: 'similarity',
         })
 
@@ -84,8 +84,8 @@ export const RAG = async({vectorStoreName, query, messages}) => {
     
         const mainChain = RunnableSequence.from([ParallelChain, prompt, model, parser])
     
-        const response = await mainChain.invoke({query})
-        return response
+        // const response = await mainChain.stream({query})
+        return mainChain
     } catch (error) {
         console.log("ERROR IN PERFORMING RAG :: ", error)
         throw error

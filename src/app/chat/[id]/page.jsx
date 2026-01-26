@@ -19,7 +19,7 @@ export default function Chat() {
     const [progress, setProgess] = useState(false)
 
     const getConversation = async() => {
-        const res = await axios.get(`http://localhost:3000/api/message/get/${id}`)
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/get/${id}`)
         if(res.status == 200){
             setMessages(res.data.data)
         }
@@ -41,15 +41,39 @@ export default function Chat() {
                     content:tempUserInput
                 }]
             } )
-            const res = await axios.post(`http://localhost:3000/api/bot/${id}`, {content:tempUserInput})
-            if( res.status == 200 ){
-                setProgess(false)
-                setMessages( (prev) => {
-                    return [...prev, {
-                        role:"assistant",
-                        content:res.data.data
-                    }]
-                } )
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_SERVER_URL}/api/bot/${id}`,
+                {
+                    method:"POST",
+                    headers: {
+                        "content-type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        content: tempUserInput
+                    })
+                }
+            )
+
+            console.log("RESPONSE :: :: ", res)
+
+            const reader = res.body.getReader()
+            const decoder = new TextDecoder()
+            
+            let len = 0
+            setMessages( (prev) => {
+                len = prev.length
+                return [...prev, {role:"assistant", content:""}]
+            } )
+            
+            while(true){
+                const {done, value} = await reader.read()
+                if(done) break;
+                const actualValue = decoder.decode(value)
+                console.log("ACTUAL VALUE :: :: :: ", actualValue)
+                // setMessages( (prev) => {
+                //     prev[len].content = prev[len] + actualValue
+                //     return prev
+                // } )
             }
         } catch (error) {
             console.log("ERROR :: User Input Form Prompt :: ", error.message)

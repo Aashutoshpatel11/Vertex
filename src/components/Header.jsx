@@ -2,6 +2,7 @@
 import React from 'react'
 import { signIn, signOut } from 'next-auth/react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 function Header({ session }) {
   return (
@@ -15,9 +16,9 @@ function Header({ session }) {
     >
       
       <div className="flex-1">
-        <a className="btn btn-ghost text-2xl font-bold  text-white/90 ">
+        <Link href={"/"} className="btn btn-ghost text-2xl font-bold  text-white/90 ">
           ChatPDF<span className="text-white/50">.ai</span>
-        </a>
+        </Link>
       </div>
 
       <div className="flex-none gap-4">
