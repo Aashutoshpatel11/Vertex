@@ -7,7 +7,7 @@ import { MessagesPlaceholder } from "@langchain/core/prompts";
 import { Runnable, RunnableLambda, RunnableParallel, RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { Document } from "langchain";
-
+import { HuggingFaceInference } from "@langchain/community/llms/hf";
 
 export const RAG = async({vectorStoreName, query, messages}) => {
 
@@ -18,6 +18,11 @@ export const RAG = async({vectorStoreName, query, messages}) => {
             apiKey: process.env.GOOGLE_API_KEY,
             temperature: 0.3
         })
+        // const model = new HuggingFaceInference({
+        //     model:"gpt2",
+        //     apiKey: process.env.HUGGINGFACEHUB_API_KEY,
+        //     temperature: 0.3
+        // })
     
     
         // VectorStore

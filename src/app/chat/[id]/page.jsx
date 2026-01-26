@@ -17,6 +17,7 @@ export default function Chat() {
     const session = useSession()
     const [messages, setMessages] = useState([])
     const [progress, setProgess] = useState(false)
+    // const [test, setTest] = useState("hfhfgh")
 
     const getConversation = async() => {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/get/${id}`)
@@ -53,29 +54,41 @@ export default function Chat() {
                     })
                 }
             )
-
-            console.log("RESPONSE :: :: ", res)
-
+            let AIRes = ""
             const reader = res.body.getReader()
             const decoder = new TextDecoder()
-            
-            let len = 0
-            setMessages( (prev) => {
-                len = prev.length
-                return [...prev, {role:"assistant", content:""}]
-            } )
             
             while(true){
                 const {done, value} = await reader.read()
                 if(done) break;
                 const actualValue = decoder.decode(value)
-                console.log("ACTUAL VALUE :: :: :: ", actualValue)
-                // setMessages( (prev) => {
-                //     prev[len].content = prev[len] + actualValue
-                //     return prev
-                // } )
+                AIRes += actualValue
+                setProgess(false)
+                setMessages( (prev) => {
+                    if(prev[prev.length - 1].role === "assistant"){
+                        prev[prev.length - 1].content += actualValue
+                        return [...prev]
+                    }else{
+                        return [...prev, {
+                            role:"assistant",
+                            content:actualValue
+                        }]
+                    }
+                })
             }
+            setMessages( (prev) => {
+                if(prev[prev.length - 1].role === "assistant"){
+                    prev[prev.length - 1].content = AIRes.trim()
+                }
+            })
+
+            await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/create/${id}`, {
+                role:"assistant",
+                content: AIRes.trim()
+            } )
+
         } catch (error) {
+            setProgess(false)
             console.log("ERROR :: User Input Form Prompt :: ", error.message)
         }
     }
@@ -158,7 +171,6 @@ export default function Chat() {
         ) }
 
         {progress && <span className="loading loading-dots loading-sm"></span>}
-
         </div>
 
         {/* USER INPUT (Unchanged) */}

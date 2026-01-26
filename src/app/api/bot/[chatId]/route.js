@@ -27,21 +27,21 @@ export async function POST(req, { params }) {
             )
         }
     
-        // const userMsg = await Message.create({
-        //     chatId,
-        //     role:"user",
-        //     content: content.trim()
-        // })
-        // if(!userMsg){
-        //     return NextResponse.json(
-        //         {
-        //             message:"Error Creating User Message"
-        //         },
-        //         {
-        //             status: 404
-        //         }
-        //     )
-        // }
+        const userMsg = await Message.create({
+            chatId,
+            role:"user",
+            content: content.trim()
+        })
+        if(!userMsg){
+            return NextResponse.json(
+                {
+                    message:"Error Creating User Message"
+                },
+                {
+                    status: 404
+                }
+            )
+        }
     
         const previousMessages = await Message.find({chatId}).select("role content -_id").sort({createdAt:1})
 
@@ -53,34 +53,26 @@ export async function POST(req, { params }) {
         const response = await Chain.stream({
             query: content
         })
-
+        let AIMsgContent = ""
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
             async start(controller){
                 for await( const chunk of response ){
                     if(chunk){
+                        AIMsgContent = AIMsgContent + chunk
+                        console.log("CHUNK :: :: ", chunk)
                         controller.enqueue(encoder.encode(JSON.stringify(chunk)))
                     }
                 }
+                console.log("AI MESSAGE CONTENT :: :: ", AIMsgContent)
                 controller.close()
             }
         })
 
-        if( !response ){
-            return NextResponse.json(
-            {
-                message: "Error Generating Response",
-            },
-            {
-                status: 501
-            }
-        )
-        }
-
         // const AIMsg = await Message.create({
         //     chatId,
         //     role:"assistant",
-        //     content: response.trim()
+        //     content: AIMsgContent.trim()
         // })
         // if(!AIMsg){ 
         //     return NextResponse.json(
@@ -92,16 +84,9 @@ export async function POST(req, { params }) {
         //         }
         //     )
         // }
-    
-        // return NextResponse.json(
-        //     {
-        //         message: "FETCHED",
-        //         data:response
-        //     },
-        //     {
-        //         status: 200
-        //     }
-        // )
+
+        // console.log("AIMSG :: :: ", AIMsgContent)
+
         return new NextResponse(stream, {
             headers: {
                 'Content-Type': "text/event-stream",
@@ -112,7 +97,7 @@ export async function POST(req, { params }) {
 
     } catch (error) {
         console.log("ERROR IN BOT ROUTE :: ", error)
-        // await Message.findByIdAndDelete(userMsg._id)
+        await Message.findByIdAndDelete(userMsg._id)
         return NextResponse.json(
             {
                 message: "INTERNAL SERVER ERROR",
