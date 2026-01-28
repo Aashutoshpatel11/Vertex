@@ -64,28 +64,25 @@ export async function POST(req, { params }) {
                         controller.enqueue(encoder.encode(JSON.stringify(chunk)))
                     }
                 }
-                console.log("AI MESSAGE CONTENT :: :: ", AIMsgContent)
                 controller.close()
             }
         })
 
-        // const AIMsg = await Message.create({
-        //     chatId,
-        //     role:"assistant",
-        //     content: AIMsgContent.trim()
-        // })
-        // if(!AIMsg){ 
-        //     return NextResponse.json(
-        //         {
-        //             message:"Error Creating AI Message"
-        //         },
-        //         {
-        //             status: 404
-        //         }
-        //     )
-        // }
-
-        // console.log("AIMSG :: :: ", AIMsgContent)
+        const AIMsg = await Message.create({
+            chatId,
+            role:"assistant",
+            content: AIMsgContent.trim()
+        })
+        if(!AIMsg){ 
+            return NextResponse.json(
+                {
+                    message:"Error Creating AI Message"
+                },
+                {
+                    status: 404
+                }
+            )
+        }
 
         return new NextResponse(stream, {
             headers: {

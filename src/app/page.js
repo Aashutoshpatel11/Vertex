@@ -8,9 +8,9 @@ import LandingView from "@/components/LandingView";
 import axios from "axios";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { UploadIcon } from "lucide-react";
+import { UploadIcon, ChevronRight, PlusCircleIcon } from "lucide-react";
 import { TimeAgo } from "@/utiils/TimeAgo";
-import { ChevronRight } from "lucide-react";
+import KeyModal from "@/components/KeyModal";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,8 +26,7 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <div className="min-h-screen bg-linear-to-t from-black via-black to-red-900/20
-    flex flex-col font-sans overflow-x-hidden  ">
+    <div className="min-h-screen bg-linear-to-t from-black via-black to-red-900/20 flex flex-col font-sans overflow-x-hidden  ">
       <Header session={session} />
       <main className="grow container mx-auto px-4 py-8  ">
         {session ? <DashboardView session={session} /> : <LandingView />}
@@ -42,6 +41,7 @@ function DashboardView({ session }) {
   const modalRef = useRef(null);
   const [chats, setChats] = useState([]);
   const router = useRouter()
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
 
   const path = usePathname()
   console.log("URL PATH :: ", path);
@@ -64,9 +64,19 @@ function DashboardView({ session }) {
 
   const openModal = () => {
     if (modalRef.current) {
-      modalRef.current.showModal();
+      if( localStorage.getItem("geminiApiKey") === null ){
+        alert("Please add your Gemini API Key first.")
+        return;
+      }else{
+        modalRef.current.showModal();
+      }
+      
     }
   };
+
+  const openKeyAddedModal = () => {
+    setIsKeyModalOpen(true);
+  }
 
   return (
     <>
@@ -85,10 +95,14 @@ function DashboardView({ session }) {
         </motion.div>
 
         {/* Action Bar */}
-        <motion.div variants={itemVariants} className="flex justify-center">
+        <motion.div variants={itemVariants} className="flex flex-col justify-center items-center gap-5">
           <button onClick={openModal} className="btn btn-wide btn-lg btn-soft btn-circle btn-error shadow-lg group">
             <span className="">Upload</span>
             <UploadIcon />
+          </button>
+          <button onClick={openKeyAddedModal} className="btn btn-wide btn-lg btn-soft btn-circle btn-error shadow-lg group">
+            <span className="">Gemini Key</span>
+            <PlusCircleIcon />
           </button>
         </motion.div>
 
@@ -99,10 +113,15 @@ function DashboardView({ session }) {
               key={chat._id}
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
-              onClick={ () => router.push(`chat/${chat._id}`) }
-              className={`card border border-white/10 bg-linear-to-r from-red-900/10 via-black to-black
-                p-6 backdrop-blur-sm transition-all  
-                shadow-xl border-l-8 hover:border-white/30 cursor-pointer hover:shadow-2xl`}
+              onClick={ () => {
+                if( localStorage.getItem("geminiApiKey") === null ){
+                  alert("Please add your Gemini API Key first.")
+                  return;
+                }else{
+                  router.push(`/chat/${chat._id}`)
+                }
+              } }
+              className={`card border border-white/10 bg-linear-to-r from-red-900/10 via-black to-black p-6 backdrop-blur-sm transition-all shadow-xl border-l-8 hover:border-white/30 cursor-pointer hover:shadow-2xl`}
             >
               <div className="card-body">
                 <div className="flex justify-between items-start">
@@ -125,7 +144,7 @@ function DashboardView({ session }) {
             variants={itemVariants}
             whileHover={{ scale: 1.02 }}
             onClick={openModal}
-            className="card border-2 border-dashed border-base-content/20 bg-transparent flex items-center justify-center min-h-[160px] cursor-pointer hover:border-primary hover:bg-base-100/50 transition-colors group"
+            className="card border-2 border-dashed border-base-content/20 bg-transparent flex items-center justify-center min-h-40 cursor-pointer hover:border-primary hover:bg-base-100/50 transition-colors group"
           >
             <div className="text-center opacity-50 group-hover:opacity-100 transition-opacity">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 mx-auto mb-2">
@@ -142,6 +161,10 @@ function DashboardView({ session }) {
       modalRef={modalRef}
       refetchChat={getAllChats}
       />
+
+      {/* --- KEY MODAL --- */}
+      { isKeyModalOpen && <KeyModal setIsKeyModalOpen={setIsKeyModalOpen} /> }
+      
     </>
   );
 }

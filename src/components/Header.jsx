@@ -10,9 +10,7 @@ function Header({ session }) {
       initial={{ y: -100 }} 
       animate={{ y: 0 }} 
       transition={{ type: "spring", stiffness: 100 }}
-      className="navbar md:px-10 border-b border-white/5 
-      bg-transparent backdrop-blur-3xl
-      shadow-xl rounded-b-box mb-8 z-50 sticky top-0"
+      className="navbar md:px-10 border-b border-white/5 bg-transparent backdrop-blur-3xl shadow-xl rounded-b-box mb-8 z-50 sticky top-0"
     >
       
       <div className="flex-1">

@@ -1,28 +1,20 @@
 import { QdrantVectorStore } from "@langchain/qdrant"
 import { Embeddings } from "./RAGIndexing"
-import { HumanMessage, AIMessage, SystemMessage, context } from "langchain"
+import { SystemMessage } from "langchain"
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { MessagesPlaceholder } from "@langchain/core/prompts";
-import { Runnable, RunnableLambda, RunnableParallel, RunnablePassthrough, RunnableSequence } from "@langchain/core/runnables";
+import { RunnableLambda, RunnableParallel, RunnableSequence } from "@langchain/core/runnables";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { Document } from "langchain";
-import { HuggingFaceInference } from "@langchain/community/llms/hf";
 
 export const RAG = async({vectorStoreName, query, messages}) => {
 
     try {
-        // MOdel
+        // Model
         const model = new ChatGoogleGenerativeAI({
             model:"gemini-2.5-flash",
-            apiKey: process.env.GOOGLE_API_KEY,
+            apiKey: process.env.GOOGLE_API_KEY || localStorage.getItem("geminiApiKey"),
             temperature: 0.3
         })
-        // const model = new HuggingFaceInference({
-        //     model:"gpt2",
-        //     apiKey: process.env.HUGGINGFACEHUB_API_KEY,
-        //     temperature: 0.3
-        // })
     
     
         // VectorStore
