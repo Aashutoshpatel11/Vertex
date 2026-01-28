@@ -10,7 +10,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { UploadIcon, ChevronRight, PlusCircleIcon } from "lucide-react";
 import { TimeAgo } from "@/utiils/TimeAgo";
-import KeyModal from "@/components/KeyModal";
 
 const containerVariants = {
   hidden: { opacity: 0 },
