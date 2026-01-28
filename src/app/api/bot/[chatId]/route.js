@@ -3,10 +3,6 @@ import { Message } from "@/models/message.model";
 import { connectDB } from "@/services/db.connect";
 import { RAG } from "@/services/RAG";
 import { NextResponse } from "next/server";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { HumanMessage } from "langchain";
-
-
 
 export async function POST(req, { params }) {
     await connectDB()
@@ -67,22 +63,6 @@ export async function POST(req, { params }) {
                 controller.close()
             }
         })
-
-        const AIMsg = await Message.create({
-            chatId,
-            role:"assistant",
-            content: AIMsgContent.trim()
-        })
-        if(!AIMsg){ 
-            return NextResponse.json(
-                {
-                    message:"Error Creating AI Message"
-                },
-                {
-                    status: 404
-                }
-            )
-        }
 
         return new NextResponse(stream, {
             headers: {

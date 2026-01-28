@@ -12,7 +12,7 @@ const client = new QdrantClient({
 });
 
 export const Embeddings = new GoogleGenerativeAIEmbeddings({
-    apiKey: localStorage.getItem("geminiApiKey"),
+    apiKey:process.env.GOOGLE_API_KEY,
     model:"gemini-embedding-001"
 })
 

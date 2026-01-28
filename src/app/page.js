@@ -41,7 +41,6 @@ function DashboardView({ session }) {
   const modalRef = useRef(null);
   const [chats, setChats] = useState([]);
   const router = useRouter()
-  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
 
   const path = usePathname()
   console.log("URL PATH :: ", path);
@@ -63,19 +62,7 @@ function DashboardView({ session }) {
   
 
   const openModal = () => {
-    if (modalRef.current) {
-      if( localStorage.getItem("geminiApiKey") === null ){
-        alert("Please add your Gemini API Key first.")
-        return;
-      }else{
-        modalRef.current.showModal();
-      }
-      
-    }
-  };
-
-  const openKeyAddedModal = () => {
-    setIsKeyModalOpen(true);
+    modalRef.current.showModal();
   }
 
   return (
@@ -113,14 +100,7 @@ function DashboardView({ session }) {
               key={chat._id}
               variants={itemVariants}
               whileHover={{ scale: 1.03 }}
-              onClick={ () => {
-                if( localStorage.getItem("geminiApiKey") === null ){
-                  alert("Please add your Gemini API Key first.")
-                  return;
-                }else{
-                  router.push(`/chat/${chat._id}`)
-                }
-              } }
+              onClick={ () => router.push(`/chat/${chat._id}`) }
               className={`card border border-white/10 bg-linear-to-r from-red-900/10 via-black to-black p-6 backdrop-blur-sm transition-all shadow-xl border-l-8 hover:border-white/30 cursor-pointer hover:shadow-2xl`}
             >
               <div className="card-body">
@@ -161,9 +141,6 @@ function DashboardView({ session }) {
       modalRef={modalRef}
       refetchChat={getAllChats}
       />
-
-      {/* --- KEY MODAL --- */}
-      { isKeyModalOpen && <KeyModal setIsKeyModalOpen={setIsKeyModalOpen} /> }
       
     </>
   );

@@ -9,13 +9,12 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 export const RAG = async({vectorStoreName, query, messages}) => {
 
     try {
-        // Model
+        // MOdel
         const model = new ChatGoogleGenerativeAI({
             model:"gemini-2.5-flash",
-            apiKey: localStorage.getItem("geminiApiKey"),
+            apiKey: process.env.GOOGLE_API_KEY,
             temperature: 0.3
         })
-    
     
         // VectorStore
         const vectorStore = await QdrantVectorStore.fromExistingCollection(

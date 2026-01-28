@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import path from "node:path";
 import fs from "node:fs/promises"
 import { RAGIndexing } from "@/services/RAGIndexing";
@@ -23,50 +23,63 @@ const saveFileToLocal = async (file, storeName) => {
 }
 
 export async function POST(req){
-    const reqBody = await req.formData()
-    const file = reqBody.get("file")
-    const title = reqBody.get("title")
-    const description = reqBody.get("description")
-
-    const existingChat = await Chat.findOne({title})
-
-    if(existingChat){
+    try {
+        const reqBody = await req.formData()
+        const file = reqBody.get("file")
+        const title = reqBody.get("title")
+        const description = reqBody.get("description")
+    
+        const existingChat = await Chat.findOne({title})
+    
+        if(existingChat){
+            return NextResponse.json(
+                {
+                    message: "Chat Title Already Exists",
+                    data: null
+                },
+                {
+                    status: 409
+                }
+            )
+        }
+    
+        const storeName = title.replaceAll(" ", "-").toLowerCase().trim()
+    
+        await saveFileToLocal(file, storeName)
+    
+        await RAGIndexing(storeName)
+    
+        const chat = await Chat.create({
+            title,
+            description,
+            storeId: storeName
+        })
+    
+        if( !chat ){
+            throw new Error("Chat Not Created")
+        }
+    
+        fs.rm(pathOfFile)
+    
         return NextResponse.json(
             {
-                message: "Chat Title Already Exists",
+                message: "chat created successfully",
+                data: chat
+            },
+            {
+                status: 200
+            }
+        )
+    } catch (error) {
+        console.log("ERROR IN CREATE CHAT ROUTE :: ", error.message)
+        return NextResponse.json(
+            {
+                message: "Error Creating Chat",
                 data: null
             },
             {
-                status: 409
+                status: 500
             }
         )
     }
-
-    const storeName = title.replaceAll(" ", "-").toLowerCase().trim()
-
-    await saveFileToLocal(file, storeName)
-
-    await RAGIndexing(storeName)
-
-    const chat = await Chat.create({
-        title,
-        description,
-        storeId: storeName
-    })
-
-    if( !chat ){
-        throw new Error("Chat Not Created")
-    }
-
-    fs.rm(pathOfFile)
-
-    return NextResponse.json(
-        {
-            message: "chat created successfully",
-            data: chat
-        },
-        {
-            status: 200
-        }
-    )
 }
