@@ -12,7 +12,7 @@ export const RAG = async({vectorStoreName, query, messages}) => {
         // Model
         const model = new ChatGoogleGenerativeAI({
             model:"gemini-2.5-flash",
-            apiKey: process.env.GOOGLE_API_KEY || localStorage.getItem("geminiApiKey"),
+            apiKey: localStorage.getItem("geminiApiKey"),
             temperature: 0.3
         })
     
