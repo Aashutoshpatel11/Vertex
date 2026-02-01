@@ -84,10 +84,10 @@ function DashboardView({ session }) {
             <span className="">Upload</span>
             <UploadIcon />
           </button>
-          <button onClick={openKeyAddedModal} className="btn btn-wide btn-lg btn-soft btn-circle btn-error shadow-lg group">
+          {/* <button onClick={openKeyAddedModal} className="btn btn-wide btn-lg btn-soft btn-circle btn-error shadow-lg group">
             <span className="">Gemini Key</span>
             <PlusCircleIcon />
-          </button>
+          </button> */}
         </motion.div>
 
         {/* Chat Grid */}
