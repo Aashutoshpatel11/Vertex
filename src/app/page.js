@@ -40,12 +40,10 @@ function DashboardView({ session }) {
   const modalRef = useRef(null);
   const [chats, setChats] = useState([]);
   const router = useRouter()
-
+//  pathname and search params for debugging
   const path = usePathname()
-  console.log("URL PATH :: ", path);
 
   const searchParams = useSearchParams()
-  console.log("SEARCH PARAMS :: ", searchParams.toString());
   
 
   const getAllChats = async() => {
