@@ -147,7 +147,7 @@ export default function Chat() {
             // 3. Save to DB (Optional: trim ONLY at the very end)
             await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/message/create/${id}`, {
                 role: "assistant",
-                content: AIRes // OK to trim here if you want
+                content: AIRes.toString().trim()
             });
 
         } catch (error) {

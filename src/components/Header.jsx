@@ -15,7 +15,7 @@ function Header({ session }) {
       
       <div className="flex-1">
         <Link href={"/"} className="btn btn-ghost text-2xl font-bold  text-white/90 ">
-          ChatPDF<span className="text-white/50">.ai</span>
+          Vertex<span className="text-white/50">.ai</span>
         </Link>
       </div>
 
