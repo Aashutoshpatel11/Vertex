@@ -156,7 +156,7 @@ function NewChatModal({ modalRef, refetchChat }) {
     const data = Object.fromEntries(formData.entries())
 
     try {
-      const res = await axios.post(`http://localhost:3000/api/chat/create`, formData)
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/chat/create`, formData)
 
       if( res.status == 200 ){  
         await refetchChat()
